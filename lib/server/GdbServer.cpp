@@ -1659,7 +1659,22 @@ void GdbServer::rspWriteMemBin() {
 //! @todo This doesn't work with icache/immu yet
 
 void GdbServer::rspRemoveMatchpoint() {
-  rsp->putPkt("");
+  ITarget::MatchType type;   // Type of matchpoint
+  uint_reg_t addr;           // Where to remove the matchpoint from
+  uint_addr_t kind;          // TODO: Target-specific data
+
+  if (3 != sscanf(pkt.getRawData(), "z%d,%" PRIxREG ",%" PRIxADDR, &type, &addr, &kind)) {
+    cerr << "Warning: Failed to recognize RSP remove matchpoint command: "
+         << pkt.getRawData() << endl;
+    rsp->putPkt("E01");
+    return;
+  }
+
+
+  if (cpu->removeMatchpoint(addr, type))
+    rsp->putPkt("OK");
+  else
+    rsp->putPkt("E01");
   return;
 }
 
@@ -1668,7 +1683,21 @@ void GdbServer::rspRemoveMatchpoint() {
 //! @todo For now only memory breakpoints are handled
 
 void GdbServer::rspInsertMatchpoint() {
-  rsp->putPkt("");
+  ITarget::MatchType type;   // Type of matchpoint
+  uint_reg_t addr;           // Where to set the matchpoint
+  uint_addr_t kind;          // TODO: Target-specific data
+
+  if (3 != sscanf(pkt.getRawData(), "Z%d,%" PRIxREG ",%" PRIxADDR, &type, &addr, &kind)) {
+    cerr << "Warning: Failed to recognize RSP insert matchpoint command: "
+         << pkt.getRawData() << endl;
+    rsp->putPkt("E01");
+    return;
+  }
+
+  if (cpu->insertMatchpoint(addr, type))
+    rsp->putPkt("OK");
+  else
+    rsp->putPkt("E01");
   return;
 }
 
