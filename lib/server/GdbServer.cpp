@@ -1674,7 +1674,10 @@ void GdbServer::rspRemoveMatchpoint() {
   if (cpu->removeMatchpoint(addr, type))
     rsp->putPkt("OK");
   else
-    rsp->putPkt("E01");
+    // Denote 'unsupported' to allow the client to try another matchpoint type.
+    // FIXME: This should be a separate API item for the target, so that we can
+    // also actually indicate a normal error here.
+    rsp->putPkt("");
   return;
 }
 
@@ -1697,7 +1700,10 @@ void GdbServer::rspInsertMatchpoint() {
   if (cpu->insertMatchpoint(addr, type))
     rsp->putPkt("OK");
   else
-    rsp->putPkt("E01");
+    // Denote 'unsupported' to allow the client to try another matchpoint type.
+    // FIXME: This should be a separate API item for the target, so that we can
+    // also actually indicate a normal error here.
+    rsp->putPkt("");
   return;
 }
 
